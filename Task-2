@@ -1,0 +1,50 @@
+
+import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
+import plotly.express as px
+
+df = pd.read_csv("Titanic-Dataset[1].csv")
+
+print("🔹 Basic Info:\n")
+print(df.info())
+
+print("\n🔹 Summary Statistics:\n")
+print(df.describe())
+
+print("\n🔹 Missing Values:\n")
+print(df.isnull().sum())
+
+df['Age'].fillna(df['Age'].median(), inplace=True)
+df.drop(columns=['Cabin'], inplace=True)  # Drop column with too many nulls
+df.dropna(subset=['Embarked'], inplace=True)
+
+numeric_cols = ['Age', 'Fare']
+for col in numeric_cols:
+    plt.figure(figsize=(6,4))
+    sns.histplot(df[col], kde=True)
+    plt.title(f'Histogram of {col}')
+    plt.show()
+
+for col in numeric_cols:
+    plt.figure(figsize=(6,4))
+    sns.boxplot(x='Survived', y=col, data=df)
+    plt.title(f'Boxplot of {col} by Survival')
+    plt.show()
+    
+plt.figure(figsize=(8,6))
+sns.heatmap(df.corr(numeric_only=True), annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.show()
+
+sns.pairplot(df[['Survived', 'Age', 'Fare', 'Pclass']], hue='Survived')
+plt.show()
+
+fig = px.scatter(df, x='Age', y='Fare', color='Survived', title='Age vs Fare by Survival')
+fig.show()
+
+print("\n Observations:")
+print("- Younger and mid-aged passengers had better survival rates.")
+print("- Passengers in higher Pclass (1st class) paid more and had higher survival.")
+print("- Fare is right-skewed with a few very high values (seen in histogram and boxplot).")
+print("- Age has outliers (seen in boxplot).")
